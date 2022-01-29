@@ -14,3 +14,44 @@
     <button type="button" @click="addCartItem(shopItem)">Add to Cart</button>
   </div>
 </template>
+
+<script>
+import { GraphQLClient, gql } from "graphql-request";
+import { mapMutations, mapGetters } from "vuex";
+
+const APIURL = "http://localhost:3000/graphql";
+const graphQLClient = new GraphQLClient(APIURL);
+
+export default {
+  name: "Shop",
+  data() {
+    return {
+      shopItems: [],
+    };
+  },
+  beforeMount() {
+    this.getShopItems();
+  },
+  computed: {
+    ...mapGetters(["cartItemsAdded"]),
+  },
+  methods: {
+    async getShopItems() {
+      const query = gql`
+        {
+          getShopItems{
+            shop_item_id
+            name
+            description
+            image_url
+            price
+          }
+        }
+      `;
+      const { getShopItems: data } = await graphQLClient.request(query);
+      this.shopItems = data;
+    },
+    ...mapMutations(["addCartItem", "clearCart"]),
+  },
+};
+</script>

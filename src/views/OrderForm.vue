@@ -34,3 +34,35 @@
     <input type="submit" />
   </Form>
 </template>
+
+<script>
+import { GraphQLClient, gql } from "graphql-request";
+import { mapMutations, mapGetters } from "vuex";
+import { Form, Field, ErrorMessage } from "vee-validate";
+import * as yup from "yup";
+
+const APIURL = "http://localhost:3000/graphql";
+const graphQLClient = new GraphQLClient(APIURL);
+const schema = yup.object({
+  name: yup.string().required(),
+  phone: yup.string().required(),
+  address: yup.string().required(),
+});
+
+export default {
+  name: "OrderForm",
+  data() {
+    return {
+      schema,
+    };
+  },
+  components: {
+    Form,
+    Field,
+    ErrorMessage,
+  },
+  computed: {
+    ...mapGetters(["cartItemsAdded"]),
+  },
+}
+</script>

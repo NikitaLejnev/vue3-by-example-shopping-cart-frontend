@@ -64,5 +64,46 @@ export default {
   computed: {
     ...mapGetters(["cartItemsAdded"]),
   },
-}
+  methods: {
+    async submitOrder({ name, phone, address }) {
+      const mutation = gql`
+        mutation addOrder(
+          $name: String
+          $phone: String
+          $address: String
+          $ordered_items: [ShopItem]
+        ) {
+          addOrder(
+            order: {
+              name: $name
+              phone: $phone
+              address: $address
+              ordered_items: $ordered_items
+            }
+          ) {
+            status
+          }
+        }
+      `;
+      const variables = {
+        name,
+        phone,
+        address,
+        ordered_items: this.cartItemsAdded.map(
+          ({ shop_item_id, name, description, image_url, price }) => ({
+            shop_item_id,
+            name,
+            description,
+            image_url,
+            price,
+          })
+        ),
+      };
+      await graphQLClient.request(mutation, variables);
+      this.clearCart();
+      this.$router.push("/success");
+    },
+    ...mapMutations(["addCartItem", "removeCartItem", "clearCart"]),
+  },
+};
 </script>
